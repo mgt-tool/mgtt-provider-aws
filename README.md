@@ -38,7 +38,7 @@ The image is published by [this repo's CI](./.github/workflows/docker.yml) on ev
 
 ## Capabilities
 
-When installed as an image, this provider declares the following runtime capabilities in [`provider.yaml`](./provider.yaml) (`image.needs`):
+When installed as an image, this provider declares the following runtime capabilities in [`provider.yaml`](./provider.yaml) (top-level `needs:`):
 
 | Capability | Effect at probe time |
 |---|---|
@@ -96,4 +96,4 @@ Not yet — added when the type surface expands past one type. Unit tests with a
 ## See also
 
 - [mgtt](https://github.com/mgt-tool/mgtt) — the constraint engine that consumes this provider
-- [Image Capabilities](https://github.com/mgt-tool/mgtt/blob/main/docs/reference/image-capabilities.md) — how `image.needs` maps to `docker run` flags
+- [Image Capabilities](https://github.com/mgt-tool/mgtt/blob/main/docs/reference/image-capabilities.md) — how `needs` maps to `docker run` flags
