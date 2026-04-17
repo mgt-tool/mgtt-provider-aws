@@ -18,16 +18,3 @@ hooks:
   install: hooks/install.sh
   uninstall: hooks/uninstall.sh
 
-auth:
-  strategy: environment
-  reads_from:
-    - AWS_PROFILE
-    - AWS_ACCESS_KEY_ID
-    - AWS_SECRET_ACCESS_KEY
-    - AWS_SESSION_TOKEN
-    - ~/.aws/credentials
-    - ~/.aws/config
-    - instance-profile
-  access:
-    probes: AWS API read-only
-    writes: none
