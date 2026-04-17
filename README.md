@@ -36,7 +36,16 @@ mgtt provider install --image ghcr.io/mgt-tool/mgtt-provider-aws:0.2.0@sha256:..
 
 The image is published by [this repo's CI](./.github/workflows/docker.yml) on every push to `main` and every `v*` tag. Find the current digest on the [GHCR package page](https://github.com/mgt-tool/mgtt-provider-aws/pkgs/container/mgtt-provider-aws).
 
-Runtime: `image.needs: [aws, network]` in `provider.yaml` — mgtt mounts `~/.aws` read-only, forwards the `AWS_*` env chain (`AWS_PROFILE`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, `AWS_REGION`, `AWS_DEFAULT_REGION`), and adds `--network host` so the container reaches AWS API endpoints. See [Image Capabilities](https://github.com/mgt-tool/mgtt/blob/main/docs/reference/image-capabilities.md) for the full contract.
+## Capabilities
+
+When installed as an image, this provider declares the following runtime capabilities in [`provider.yaml`](./provider.yaml) (`image.needs`):
+
+| Capability | Effect at probe time |
+|---|---|
+| `aws` | Mounts `~/.aws` read-only; forwards `AWS_PROFILE`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, `AWS_REGION`, `AWS_DEFAULT_REGION` (whichever are set in the caller) |
+| `network` | `--network host` — container reaches AWS API endpoints (RDS, CloudWatch) without depending on bridge-network DNS |
+
+Operators using IAM roles on EC2/ECS (no on-disk credentials file) can rely on `--network host` alone and skip `aws`; the SDK inside the container will resolve instance-profile credentials via the metadata service. Operators with a non-default AWS config path can override `aws` in `$MGTT_HOME/capabilities.yaml`, and refuse specific caps via `MGTT_IMAGE_CAPS_DENY=...`. See the [full capabilities reference](https://github.com/mgt-tool/mgtt/blob/main/docs/reference/image-capabilities.md). Git-installed invocations don't go through this layer — the binary runs with the operator's full environment.
 
 ## Auth
 
