@@ -6,13 +6,13 @@
 
 - **Proper Go binary provider.** Replaces the v0.1.0 shell-fallback stub. `mgtt-provider-aws` is now a standalone binary built on the [mgtt provider SDK](https://github.com/mgt-tool/mgtt/tree/main/sdk/provider), consistent with mgtt-provider-kubernetes / tempo / quickwit / terraform.
 - **Dockerfile + CI publish.** Image based on `amazon/aws-cli:2.17.0` with the provider binary grafted in; `.github/workflows/docker.yml` publishes to `ghcr.io/mgt-tool/mgtt-provider-aws` on every push to `main` and every `v*` tag.
-- **`image.needs: [aws, network]`** in `provider.yaml`. mgtt forwards `~/.aws` as a read-only bind mount, the `AWS_*` env chain, and `--network host` at probe time — `mgtt provider install --image` now works end-to-end.
+- **`image.needs: [aws, network]`** in `manifest.yaml`. mgtt forwards `~/.aws` as a read-only bind mount, the `AWS_*` env chain, and `--network host` at probe time — `mgtt provider install --image` now works end-to-end.
 - **Backend-specific error classification** (`internal/awsclassify`). Maps `DBInstanceNotFound`, `AccessDenied`, `Throttling`, etc. to the SDK's sentinel errors so `mgtt plan` reasons correctly about missing resources, auth failures, and retryable conditions.
 - **Uninstall hook** (`hooks/uninstall.sh`). Cleans up `bin/` so `mgtt provider uninstall aws` leaves nothing behind.
 
 ### Changed
 
-- `provider.yaml` no longer carries inline `probe.cmd` strings; probes live in `internal/probes/rds_instance.go` and share the SDK's `shell.Client` for timeout/size-cap/classification.
+- `manifest.yaml` no longer carries inline `probe.cmd` strings; probes live in `internal/probes/rds_instance.go` and share the SDK's `shell.Client` for timeout/size-cap/classification.
 - `meta.command` is set to `$MGTT_PROVIDER_DIR/bin/mgtt-provider-aws`; git install builds the binary via `hooks/install.sh`.
 - `meta.version` bumped to `0.2.0`.
 
