@@ -46,7 +46,7 @@ When installed as an image, this provider declares the following runtime capabil
 
 Plus `network: host` so the container reaches AWS API endpoints without depending on bridge-network DNS.
 
-Operators using IAM roles on EC2/ECS (no on-disk credentials file) can rely on `--network host` alone and skip `aws`; the SDK inside the container will resolve instance-profile credentials via the metadata service. Operators with a non-default AWS config path can override `aws` in `$MGTT_HOME/capabilities.yaml`, and refuse specific caps via `MGTT_IMAGE_CAPS_DENY=...`. See the [full capabilities reference](https://github.com/mgt-tool/mgtt/blob/main/docs/reference/image-capabilities.md). Git-installed invocations don't go through this layer — the binary runs with the operator's full environment.
+On EC2/ECS with an IAM role (no on-disk credentials), drop the `aws` capability from `needs:` — the SDK inside the container resolves instance-profile credentials via the metadata service. See the [capability reference](https://github.com/mgt-tool/mgtt/blob/main/docs/reference/image-capabilities.md) for operator overrides and the `MGTT_IMAGE_CAPS_DENY` opt-out.
 
 ## Auth
 
