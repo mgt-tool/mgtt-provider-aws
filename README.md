@@ -59,7 +59,7 @@ Uses your existing AWS credential chain:
 | `~/.aws/credentials`, `~/.aws/config` | file-configured creds |
 | EC2 / ECS instance profile | running inside AWS |
 
-Probes are `aws rds describe-db-instances` and `aws cloudwatch get-metric-statistics` — **read-only**. `auth.access.writes: none` in `provider.yaml`. Operators should scope credentials to a read-only policy; minimum permissions:
+Probes are `aws rds describe-db-instances` and `aws cloudwatch get-metric-statistics` — **read-only**. `provider.yaml` omits `read_only:` (which defaults to `true`), so `mgtt provider validate` emits no write-related warnings. Operators should scope credentials to a read-only policy anyway; minimum permissions:
 
 ```json
 {
