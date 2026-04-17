@@ -38,7 +38,7 @@ The image is published by [this repo's CI](./.github/workflows/docker.yml) on ev
 
 ## Capabilities
 
-When installed as an image, this provider declares the following runtime capabilities in [`provider.yaml`](./provider.yaml) (top-level `needs:`):
+When installed as an image, this provider declares the following runtime capabilities in [`manifest.yaml`](./manifest.yaml) (top-level `needs:`):
 
 | Capability | Effect at probe time |
 |---|---|
@@ -59,7 +59,7 @@ Uses your existing AWS credential chain:
 | `~/.aws/credentials`, `~/.aws/config` | file-configured creds |
 | EC2 / ECS instance profile | running inside AWS |
 
-Probes are `aws rds describe-db-instances` and `aws cloudwatch get-metric-statistics` — **read-only**. `provider.yaml` omits `read_only:` (which defaults to `true`), so `mgtt provider validate` emits no write-related warnings. Operators should scope credentials to a read-only policy anyway; minimum permissions:
+Probes are `aws rds describe-db-instances` and `aws cloudwatch get-metric-statistics` — **read-only**. `manifest.yaml` omits `read_only:` (which defaults to `true`), so `mgtt provider validate` emits no write-related warnings. Operators should scope credentials to a read-only policy anyway; minimum permissions:
 
 ```json
 {

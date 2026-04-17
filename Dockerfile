@@ -16,6 +16,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/provider .
 
 FROM amazon/aws-cli:2.17.0
 COPY --from=build /out/provider /usr/local/bin/provider
-COPY provider.yaml /provider.yaml
+COPY manifest.yaml /manifest.yaml
 COPY types /types
 ENTRYPOINT ["/usr/local/bin/provider"]
