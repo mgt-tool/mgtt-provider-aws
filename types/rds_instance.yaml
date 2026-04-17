@@ -1,0 +1,31 @@
+description: AWS RDS database instance. Facts are observed via `aws rds describe-db-instances` and CloudWatch metrics.
+
+facts:
+  available:
+    type: mgtt.bool
+    ttl: 60s
+    cost: low
+    access: AWS API read-only
+  connection_count:
+    type: mgtt.int
+    ttl: 60s
+    cost: low
+    access: AWS API read-only
+
+healthy:
+  - available == true
+  - connection_count < 500
+
+states:
+  live:
+    when: "available == true"
+    description: accepting connections
+  stopped:
+    when: "available == false"
+    description: not accepting connections
+
+default_active_state: live
+
+failure_modes:
+  stopped:
+    can_cause: [upstream_failure, connection_refused, query_timeout]
