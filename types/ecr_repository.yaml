@@ -1,0 +1,36 @@
+description: AWS ECR container registry repository. Facts are observed via `aws ecr describe-repositories` and `aws ecr describe-images`.
+
+facts:
+  exists:
+    type: mgtt.bool
+    ttl: 300s
+    cost: low
+    access: AWS API read-only
+  image_count:
+    type: mgtt.int
+    ttl: 300s
+    cost: low
+    access: AWS API read-only
+  latest_push_age_seconds:
+    type: mgtt.int
+    ttl: 300s
+    cost: low
+    access: AWS API read-only
+
+healthy:
+  - exists == true
+  - image_count > 0
+
+states:
+  present:
+    when: "exists == true"
+    description: repository exists
+  absent:
+    when: "exists == false"
+    description: repository not found
+
+default_active_state: present
+
+failure_modes:
+  absent:
+    can_cause: [image_pull_failure, deployment_failure]

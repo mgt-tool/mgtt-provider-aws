@@ -1,0 +1,42 @@
+description: AWS CloudFront CDN distribution. Facts are observed via `aws cloudfront get-distribution` and CloudWatch metrics.
+
+facts:
+  deployed:
+    type: mgtt.bool
+    ttl: 300s
+    cost: low
+    access: AWS API read-only
+  enabled:
+    type: mgtt.bool
+    ttl: 300s
+    cost: low
+    access: AWS API read-only
+  error_rate_5xx:
+    type: mgtt.percentage
+    ttl: 60s
+    cost: low
+    access: AWS API read-only
+
+healthy:
+  - deployed == true
+  - enabled == true
+  - error_rate_5xx < 1
+
+states:
+  live:
+    when: "deployed == true & enabled == true"
+    description: distribution serving traffic at edge
+  disabled:
+    when: "enabled == false"
+    description: distribution disabled
+  deploying:
+    when: "deployed == false & enabled == true"
+    description: edge propagation in progress
+
+default_active_state: live
+
+failure_modes:
+  disabled:
+    can_cause: [origin_exposed, cache_miss, latency_spike]
+  deploying:
+    can_cause: [stale_cache, inconsistent_response]

@@ -1,0 +1,42 @@
+description: AWS EKS cluster control plane. Facts are observed via `aws eks describe-cluster` and `aws eks list-nodegroups`. Note — `node_count` is the count of managed nodegroups, not the count of individual worker nodes. Fargate-only clusters and self-managed-node fleets will under-report.
+
+facts:
+  active:
+    type: mgtt.bool
+    ttl: 60s
+    cost: low
+    access: AWS API read-only
+  api_reachable:
+    type: mgtt.bool
+    ttl: 30s
+    cost: low
+    access: AWS API read-only
+  node_count:
+    type: mgtt.int
+    ttl: 60s
+    cost: low
+    access: AWS API read-only
+
+healthy:
+  - active == true
+  - api_reachable == true
+  - node_count > 0
+
+states:
+  live:
+    when: "active == true & api_reachable == true"
+    description: control plane healthy and reachable
+  degraded:
+    when: "active == true & api_reachable == false"
+    description: control plane up but API unreachable
+  stopped:
+    when: "active == false"
+    description: control plane not ACTIVE
+
+default_active_state: live
+
+failure_modes:
+  stopped:
+    can_cause: [kubectl_timeout, node_deregistration, workload_outage]
+  degraded:
+    can_cause: [kubectl_timeout, pod_schedule_failure]

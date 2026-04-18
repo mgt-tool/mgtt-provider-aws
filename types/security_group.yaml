@@ -1,0 +1,35 @@
+description: AWS VPC security group. Facts are observed via `aws ec2 describe-security-groups`.
+
+facts:
+  exists:
+    type: mgtt.bool
+    ttl: 300s
+    cost: low
+    access: AWS API read-only
+  ingress_rule_count:
+    type: mgtt.int
+    ttl: 300s
+    cost: low
+    access: AWS API read-only
+  egress_rule_count:
+    type: mgtt.int
+    ttl: 300s
+    cost: low
+    access: AWS API read-only
+
+healthy:
+  - exists == true
+
+states:
+  present:
+    when: "exists == true"
+    description: security group exists
+  absent:
+    when: "exists == false"
+    description: security group not found
+
+default_active_state: present
+
+failure_modes:
+  absent:
+    can_cause: [connection_refused, instance_launch_failure]

@@ -1,0 +1,37 @@
+description: AWS MQ broker (RabbitMQ or ActiveMQ). Facts are observed via `aws mq describe-broker` and CloudWatch metrics.
+
+facts:
+  available:
+    type: mgtt.bool
+    ttl: 60s
+    cost: low
+    access: AWS API read-only
+  queue_depth:
+    type: mgtt.int
+    ttl: 60s
+    cost: low
+    access: AWS API read-only
+  consumer_count:
+    type: mgtt.int
+    ttl: 60s
+    cost: low
+    access: AWS API read-only
+
+healthy:
+  - available == true
+  - queue_depth < 10000
+  - consumer_count > 0
+
+states:
+  live:
+    when: "available == true"
+    description: broker accepting publishers and consumers
+  stopped:
+    when: "available == false"
+    description: broker unreachable
+
+default_active_state: live
+
+failure_modes:
+  stopped:
+    can_cause: [publish_failure, consumer_disconnect, message_backlog]

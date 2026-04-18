@@ -1,0 +1,42 @@
+description: AWS IAM role, including IRSA service-account roles and cross-account assumable roles. Facts are observed via `aws iam get-role` and `aws iam list-attached-role-policies`.
+
+facts:
+  exists:
+    type: mgtt.bool
+    ttl: 300s
+    cost: low
+    access: AWS API read-only
+  assumable:
+    type: mgtt.bool
+    ttl: 300s
+    cost: low
+    access: AWS API read-only
+  attached_policy_count:
+    type: mgtt.int
+    ttl: 300s
+    cost: low
+    access: AWS API read-only
+
+healthy:
+  - exists == true
+  - assumable == true
+  - attached_policy_count > 0
+
+states:
+  present:
+    when: "exists == true & assumable == true"
+    description: role exists and trust policy accepts caller
+  not_assumable:
+    when: "exists == true & assumable == false"
+    description: trust policy rejects current principal
+  absent:
+    when: "exists == false"
+    description: role not found
+
+default_active_state: present
+
+failure_modes:
+  absent:
+    can_cause: [auth_failure, access_denied, pod_start_failure]
+  not_assumable:
+    can_cause: [sts_assume_role_failure, auth_failure]

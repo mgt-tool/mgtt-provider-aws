@@ -1,0 +1,35 @@
+description: AWS Systems Manager Parameter Store parameter (String, StringList, or SecureString). Facts are observed via `aws ssm get-parameter` and `aws ssm describe-parameters`.
+
+facts:
+  exists:
+    type: mgtt.bool
+    ttl: 60s
+    cost: low
+    access: AWS API read-only
+  version:
+    type: mgtt.int
+    ttl: 60s
+    cost: low
+    access: AWS API read-only
+  last_modified_age_seconds:
+    type: mgtt.int
+    ttl: 60s
+    cost: low
+    access: AWS API read-only
+
+healthy:
+  - exists == true
+
+states:
+  present:
+    when: "exists == true"
+    description: parameter set
+  absent:
+    when: "exists == false"
+    description: parameter not found
+
+default_active_state: present
+
+failure_modes:
+  absent:
+    can_cause: [config_load_failure, secret_missing, external_secrets_sync_failure]

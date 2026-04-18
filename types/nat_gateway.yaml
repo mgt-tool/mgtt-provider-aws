@@ -1,0 +1,36 @@
+description: AWS NAT gateway for private-subnet egress. Facts are observed via `aws ec2 describe-nat-gateways` and CloudWatch metrics.
+
+facts:
+  available:
+    type: mgtt.bool
+    ttl: 60s
+    cost: low
+    access: AWS API read-only
+  error_port_allocation_count:
+    type: mgtt.int
+    ttl: 60s
+    cost: low
+    access: AWS API read-only
+  bytes_out_per_second:
+    type: mgtt.int
+    ttl: 60s
+    cost: low
+    access: AWS API read-only
+
+healthy:
+  - available == true
+  - error_port_allocation_count == 0
+
+states:
+  live:
+    when: "available == true"
+    description: gateway forwarding traffic
+  failed:
+    when: "available == false"
+    description: gateway not available
+
+default_active_state: live
+
+failure_modes:
+  failed:
+    can_cause: [egress_failure, image_pull_failure, external_api_timeout]

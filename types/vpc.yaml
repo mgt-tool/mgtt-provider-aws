@@ -1,0 +1,31 @@
+description: AWS VPC. Facts are observed via `aws ec2 describe-vpcs` and `aws ec2 describe-network-interfaces` for IP utilization.
+
+facts:
+  available:
+    type: mgtt.bool
+    ttl: 300s
+    cost: low
+    access: AWS API read-only
+  ip_utilization:
+    type: mgtt.percentage
+    ttl: 300s
+    cost: low
+    access: AWS API read-only
+
+healthy:
+  - available == true
+  - ip_utilization < 80
+
+states:
+  live:
+    when: "available == true"
+    description: VPC available
+  unavailable:
+    when: "available == false"
+    description: VPC unavailable
+
+default_active_state: live
+
+failure_modes:
+  unavailable:
+    can_cause: [network_unreachable, eni_allocation_failure]

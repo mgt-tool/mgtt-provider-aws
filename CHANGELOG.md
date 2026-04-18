@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.3.0] — 2026-04-18
+
+### Added
+
+- **13 new types** derived from surveying the `magento-infrastructure` Terraform project and applying the mgtt type philosophy (runtime-observable, with facts / states / failure modes):
+  - `elasticache_cluster`, `mq_broker`, `s3_bucket`, `eks_cluster`, `ecr_repository`, `cloudfront_distribution`, `iam_role`, `acm_certificate`, `ssm_parameter`, `vpc`, `nat_gateway`, `vpc_endpoint`, `security_group`.
+- **Go probe implementations** (`internal/probes/<type>.go`, one file per type) — each fact shells out to `aws-cli` via the SDK's `shell.Client` and propagates errors so `awsclassify` can translate them to SDK sentinels.
+- **Shared helpers** (`internal/probes/helpers.go`) — `requireName`, `readCloudWatchStatistic`, CIDR/float parsing — consolidate the common probe plumbing.
+- **Unit tests** for every new type under `internal/probes/*_test.go` — happy path + missing-name + not-found handling where applicable, using the SDK's stubbable `shell.Client.Exec`.
+- **Extended IAM policy in README** covering the union of describes/reads for all 14 types; operators are directed to trim to the types they actually reference.
+- **`TestYAMLTypesAllRegistered` integration test** — cross-checks `types/*.yaml` against the in-memory registry so a missing `register…` call fails fast.
+
+### Changed
+
+- `meta.version` and image tag bumped to `0.3.0`.
+- README Types table expanded from 1 row to 14; "Scope intentionally narrow" paragraph removed.
+
+### Scope notes
+
+The new probes prioritize correctness of the declarative model (YAML types, state machines, error classification) over exhaustive per-fact tuning:
+
+- `eks_cluster.node_count` is approximated as the number of managed nodegroups (avoids kubectl round-trips; self-managed / Fargate fleets under-report).
+- `iam_role.assumable` checks whether a trust policy document exists, not whether the current caller can actually assume the role — an `sts:AssumeRole` call would be a write-ish side effect we avoid in probes.
+- `cloudfront_distribution.error_rate_5xx` reads the `Region=Global` CloudFront metric (CloudFront's region dimension is fixed by the service).
+
+All three are documented at the call site and can be tightened in a subsequent minor release without a type-surface change.
+
 ## [0.2.0] — 2026-04-17
 
 ### Added

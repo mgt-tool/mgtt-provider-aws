@@ -11,8 +11,8 @@ import (
 )
 
 // newClient returns a shell.Client for `aws` with the aws-specific
-// stderr classifier. Kept as a package-level helper so tests can swap
-// shell.Client.Exec without constructing the whole CLI binary.
+// stderr classifier. Tests in this package construct their own client
+// via fakeClient (rds_instance_test.go) rather than swapping here.
 func newClient() *shell.Client {
 	c := shell.New("aws")
 	c.Classify = awsclassify.Classify
@@ -21,5 +21,19 @@ func newClient() *shell.Client {
 
 // Register wires every fact of every type.
 func Register(r *provider.Registry) {
-	registerRDSInstance(r, newClient())
+	cli := newClient()
+	registerRDSInstance(r, cli)
+	registerElasticacheCluster(r, cli)
+	registerMQBroker(r, cli)
+	registerS3Bucket(r, cli)
+	registerEKSCluster(r, cli)
+	registerECRRepository(r, cli)
+	registerCloudFrontDistribution(r, cli)
+	registerIAMRole(r, cli)
+	registerACMCertificate(r, cli)
+	registerSSMParameter(r, cli)
+	registerVPC(r, cli)
+	registerNATGateway(r, cli)
+	registerVPCEndpoint(r, cli)
+	registerSecurityGroup(r, cli)
 }
