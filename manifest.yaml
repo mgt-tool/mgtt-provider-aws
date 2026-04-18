@@ -1,20 +1,24 @@
 meta:
   name: aws
-  version: 0.3.0
+  version: 1.0.0
   description: AWS resources for mgtt — 14 types covering RDS, ElastiCache, MQ, S3, EKS, ECR, CloudFront, IAM, ACM, SSM, VPC, NAT gateway, VPC endpoint, and security group via aws-cli
   tags: [databases, cloud, aws]
   requires:
-    mgtt: ">=0.1.0"
-  command: "$MGTT_PROVIDER_DIR/bin/mgtt-provider-aws"
+    mgtt: ">=0.2.0"
 
 # Capabilities the provider needs at probe time — host packages
 # and credential chains. Image installs satisfy these via docker-run
 # bind mounts and env forwards; git installs inherit them from the
-# operator's shell. `network:` is a separate runtime-isolation knob.
+# operator's shell. `network_mode:` is a separate runtime-isolation knob.
 # See mgtt docs/reference/image-capabilities.md for the vocabulary.
-needs: [aws]
-network: host
-hooks:
-  install: hooks/install.sh
-  uninstall: hooks/uninstall.sh
+runtime:
+  needs:
+    aws: ">=2.13"
+  network_mode: host
 
+install:
+  source:
+    build: hooks/install.sh
+    clean: hooks/uninstall.sh
+  image:
+    repository: ghcr.io/mgt-tool/mgtt-provider-aws
