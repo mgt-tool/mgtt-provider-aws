@@ -1,0 +1,35 @@
+description: AWS S3 bucket. Facts are observed via `aws s3api head-bucket`, `aws s3api get-bucket-versioning`, and CloudWatch storage metrics.
+
+facts:
+  accessible:
+    type: mgtt.bool
+    ttl: 300s
+    cost: low
+    access: AWS API read-only
+  versioning_enabled:
+    type: mgtt.bool
+    ttl: 3600s
+    cost: low
+    access: AWS API read-only
+  object_count:
+    type: mgtt.int
+    ttl: 3600s
+    cost: low
+    access: AWS API read-only
+
+healthy:
+  - accessible == true
+
+states:
+  live:
+    when: "accessible == true"
+    description: bucket reachable and responding
+  inaccessible:
+    when: "accessible == false"
+    description: bucket unreachable or permission denied
+
+default_active_state: live
+
+failure_modes:
+  inaccessible:
+    can_cause: [upload_failure, download_failure, access_denied]

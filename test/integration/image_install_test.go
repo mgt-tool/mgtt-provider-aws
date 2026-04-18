@@ -36,13 +36,13 @@ import (
 
 // Provider-specific fixtures. Update these alongside manifest.yaml.
 const (
-	imgLocalTag    = "mgtt-provider-aws-it:test"
-	providerName   = "aws"
-	expectCaps     = "aws"
-	expectNetwork  = "host"
-	registryPort   = "15806"
-	registryName   = "mgtt-provider-aws-it-registry"
-	localPushTag   = "localhost:15806/mgtt-provider-aws:it"
+	imgLocalTag   = "mgtt-provider-aws-it:test"
+	providerName  = "aws"
+	expectCaps    = "aws"
+	expectNetwork = "host"
+	registryPort  = "15806"
+	registryName  = "mgtt-provider-aws-it-registry"
+	localPushTag  = "localhost:15806/mgtt-provider-aws:it"
 )
 
 func TestImageInstall_Capabilities(t *testing.T) {

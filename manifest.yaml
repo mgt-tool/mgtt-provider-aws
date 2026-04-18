@@ -1,7 +1,7 @@
 meta:
   name: aws
-  version: 0.2.0
-  description: AWS resources for mgtt — RDS database instances via aws-cli
+  version: 0.3.0
+  description: AWS resources for mgtt — 14 types covering RDS, ElastiCache, MQ, S3, EKS, ECR, CloudFront, IAM, ACM, SSM, VPC, NAT gateway, VPC endpoint, and security group via aws-cli
   tags: [databases, cloud, aws]
   requires:
     mgtt: ">=0.1.0"

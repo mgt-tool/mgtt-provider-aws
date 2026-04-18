@@ -1,0 +1,36 @@
+description: AWS ElastiCache Redis/Memcached replication group. Facts are observed via `aws elasticache describe-replication-groups` and CloudWatch metrics.
+
+facts:
+  available:
+    type: mgtt.bool
+    ttl: 60s
+    cost: low
+    access: AWS API read-only
+  connection_count:
+    type: mgtt.int
+    ttl: 60s
+    cost: low
+    access: AWS API read-only
+  cache_hit_ratio:
+    type: mgtt.percentage
+    ttl: 60s
+    cost: low
+    access: AWS API read-only
+
+healthy:
+  - available == true
+  - cache_hit_ratio > 80
+
+states:
+  live:
+    when: "available == true"
+    description: cluster accepting connections
+  stopped:
+    when: "available == false"
+    description: cluster unreachable
+
+default_active_state: live
+
+failure_modes:
+  stopped:
+    can_cause: [upstream_failure, connection_refused, cache_miss_storm]

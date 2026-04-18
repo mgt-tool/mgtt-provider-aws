@@ -1,0 +1,30 @@
+description: AWS VPC interface or gateway endpoint (e.g. PrivateLink for S3, SSM, ECR). Facts are observed via `aws ec2 describe-vpc-endpoints`.
+
+facts:
+  available:
+    type: mgtt.bool
+    ttl: 300s
+    cost: low
+    access: AWS API read-only
+  dns_enabled:
+    type: mgtt.bool
+    ttl: 300s
+    cost: low
+    access: AWS API read-only
+
+healthy:
+  - available == true
+
+states:
+  live:
+    when: "available == true"
+    description: endpoint available
+  failed:
+    when: "available == false"
+    description: endpoint not available
+
+default_active_state: live
+
+failure_modes:
+  failed:
+    can_cause: [service_unreachable, dns_failure, egress_cost_spike]

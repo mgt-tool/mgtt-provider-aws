@@ -1,0 +1,46 @@
+description: AWS Certificate Manager TLS certificate. Facts are observed via `aws acm describe-certificate`.
+
+facts:
+  issued:
+    type: mgtt.bool
+    ttl: 3600s
+    cost: low
+    access: AWS API read-only
+  in_use:
+    type: mgtt.bool
+    ttl: 3600s
+    cost: low
+    access: AWS API read-only
+  days_until_expiry:
+    type: mgtt.int
+    ttl: 3600s
+    cost: low
+    access: AWS API read-only
+
+healthy:
+  - issued == true
+  - days_until_expiry > 30
+
+states:
+  valid:
+    when: "issued == true & days_until_expiry > 30"
+    description: certificate issued and not near expiry
+  expiring_soon:
+    when: "issued == true & days_until_expiry <= 30 & days_until_expiry > 0"
+    description: expiry within 30 days
+  expired:
+    when: "issued == true & days_until_expiry <= 0"
+    description: past expiry date
+  pending:
+    when: "issued == false"
+    description: validation pending or failed
+
+default_active_state: valid
+
+failure_modes:
+  expired:
+    can_cause: [tls_handshake_failure, browser_warning, client_disconnect]
+  pending:
+    can_cause: [tls_handshake_failure, endpoint_unavailable]
+  expiring_soon:
+    can_cause: [imminent_tls_failure]
