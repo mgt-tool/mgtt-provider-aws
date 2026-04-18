@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.0] — 2026-04-18
+
+### Changed (breaking)
+
+- `manifest.yaml` migrated to the v1.0 mgtt schema: three top-level blocks (`meta`, `runtime`, `install`); `hooks:` retired; `needs:` + `network:` moved under `runtime:`; install methods declared via `install.source` + `install.image` subblocks. Requires mgtt ≥ 0.2.0.
+
 ## [0.3.0] — 2026-04-18
 
 ### Added
