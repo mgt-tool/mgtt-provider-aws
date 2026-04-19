@@ -1,5 +1,17 @@
 description: AWS MQ broker (RabbitMQ or ActiveMQ). Facts are observed via `aws mq describe-broker` and CloudWatch metrics.
 
+# IAM grants required to probe this type. mgtt-core doesn't parse this
+# block today; it's operator-facing documentation for scoping a
+# probe-role policy. `{region}` / `{account}` / `{resource}` reference
+# the target's coordinates — substitute before pasting into a policy.
+requires:
+  iam:
+    - action: mq:DescribeBroker
+      resource: "arn:aws:mq:{region}:{account}:broker:{resource}"
+    - action: cloudwatch:GetMetricStatistics
+      resource: "*"
+      note: "CloudWatch metric reads do not support resource-scoped policies."
+
 facts:
   available:
     type: mgtt.bool

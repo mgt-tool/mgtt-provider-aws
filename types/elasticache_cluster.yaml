@@ -1,5 +1,17 @@
 description: AWS ElastiCache Redis/Memcached replication group. Facts are observed via `aws elasticache describe-replication-groups` and CloudWatch metrics.
 
+# IAM grants required to probe this type. mgtt-core doesn't parse this
+# block today; it's operator-facing documentation for scoping a
+# probe-role policy. `{region}` / `{account}` / `{resource}` reference
+# the target's coordinates — substitute before pasting into a policy.
+requires:
+  iam:
+    - action: elasticache:DescribeReplicationGroups
+      resource: "arn:aws:elasticache:{region}:{account}:replicationgroup:{resource}"
+    - action: cloudwatch:GetMetricStatistics
+      resource: "*"
+      note: "CloudWatch metric reads do not support resource-scoped policies."
+
 facts:
   available:
     type: mgtt.bool

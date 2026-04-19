@@ -1,5 +1,17 @@
 description: AWS RDS database instance. Facts are observed via `aws rds describe-db-instances` and CloudWatch metrics.
 
+# IAM grants required to probe this type. mgtt-core doesn't parse this
+# block today; it's operator-facing documentation for scoping a
+# probe-role policy. `{region}` / `{account}` / `{resource}` reference
+# the target's coordinates — substitute before pasting into a policy.
+requires:
+  iam:
+    - action: rds:DescribeDBInstances
+      resource: "arn:aws:rds:{region}:{account}:db:{resource}"
+    - action: cloudwatch:GetMetricStatistics
+      resource: "*"
+      note: "CloudWatch metric reads do not support resource-scoped policies."
+
 facts:
   available:
     type: mgtt.bool

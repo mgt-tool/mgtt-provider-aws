@@ -1,5 +1,14 @@
 description: AWS VPC security group. Facts are observed via `aws ec2 describe-security-groups`.
 
+# IAM grants required to probe this type. mgtt-core doesn't parse this
+# block today; it's operator-facing documentation for scoping a
+# probe-role policy.
+requires:
+  iam:
+    - action: ec2:DescribeSecurityGroups
+      resource: "*"
+      note: "ec2:Describe* actions do not support resource-scoped policies."
+
 facts:
   exists:
     type: mgtt.bool

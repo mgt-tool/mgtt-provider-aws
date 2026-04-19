@@ -1,5 +1,16 @@
 description: AWS EKS cluster control plane. Facts are observed via `aws eks describe-cluster` and `aws eks list-nodegroups`. Note — `node_count` is the count of managed nodegroups, not the count of individual worker nodes. Fargate-only clusters and self-managed-node fleets will under-report.
 
+# IAM grants required to probe this type. mgtt-core doesn't parse this
+# block today; it's operator-facing documentation for scoping a
+# probe-role policy. `{region}` / `{account}` / `{resource}` reference
+# the target's coordinates — substitute before pasting into a policy.
+requires:
+  iam:
+    - action: eks:DescribeCluster
+      resource: "arn:aws:eks:{region}:{account}:cluster/{resource}"
+    - action: eks:ListNodegroups
+      resource: "arn:aws:eks:{region}:{account}:cluster/{resource}"
+
 facts:
   active:
     type: mgtt.bool

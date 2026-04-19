@@ -109,6 +109,8 @@ All probes are **read-only** describes and CloudWatch reads. `manifest.yaml` omi
 
 Types you don't use don't require their actions — trim the list to match the types referenced in your model.
 
+Each type YAML under [`types/`](./types/) declares a `requires.iam:` block listing exactly which actions and resource-ARN patterns that type's probes touch — useful when scoping the policy tighter than the union above. For example, `types/rds_instance.yaml` lists `rds:DescribeDBInstances` with `resource: "arn:aws:rds:{region}:{account}:db:{resource}"`, letting you grant the action only for the specific DB ARN. Note that several AWS actions (`ec2:Describe*`, `cloudwatch:GetMetricStatistics`, `ssm:DescribeParameters`) don't support resource-level policies — those remain `Resource: "*"` in any scoped policy; the per-type blocks flag this with a `note:` field. mgtt-core doesn't parse `requires.iam:` yet — it's documentation today. A follow-up (spec: component `requires.iam:` vocabulary) will render it automatically as a scoped policy via `mgtt provider inspect`.
+
 ## Architecture
 
 - `main.go` — registers types and calls `provider.Main`.

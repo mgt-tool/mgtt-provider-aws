@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- **Per-type `requires.iam:` block** in every `types/*.yaml` file listing exactly which AWS API actions that type's probes touch, along with the resource-ARN pattern the action supports (or `*` with a `note:` where AWS doesn't support resource-scoping). Operators can now scope a probe-role policy per type instead of granting the union-of-all-types. mgtt-core doesn't parse the block yet — it's documentation today; a follow-up will render it automatically via `mgtt provider inspect`.
+
 ## [1.0.0] — 2026-04-18
 
 ### Changed (breaking)

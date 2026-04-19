@@ -1,5 +1,16 @@
 description: AWS ECR container registry repository. Facts are observed via `aws ecr describe-repositories` and `aws ecr describe-images`.
 
+# IAM grants required to probe this type. mgtt-core doesn't parse this
+# block today; it's operator-facing documentation for scoping a
+# probe-role policy. `{region}` / `{account}` / `{resource}` reference
+# the target's coordinates — substitute before pasting into a policy.
+requires:
+  iam:
+    - action: ecr:DescribeRepositories
+      resource: "arn:aws:ecr:{region}:{account}:repository/{resource}"
+    - action: ecr:DescribeImages
+      resource: "arn:aws:ecr:{region}:{account}:repository/{resource}"
+
 facts:
   exists:
     type: mgtt.bool
