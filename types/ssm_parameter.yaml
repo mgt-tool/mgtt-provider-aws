@@ -1,5 +1,19 @@
 description: AWS Systems Manager Parameter Store parameter (String, StringList, or SecureString). Facts are observed via `aws ssm get-parameter` and `aws ssm describe-parameters`.
 
+# IAM grants required to probe this type. mgtt-core doesn't parse this
+# block today; it's operator-facing documentation for scoping a
+# probe-role policy. `{region}` / `{account}` / `{resource}` reference
+# the target's coordinates — substitute before pasting into a policy.
+# Note: the parameter name begins with `/`; the ARN suffix is
+# `parameter{resource}` — no extra separator is inserted.
+requires:
+  iam:
+    - action: ssm:GetParameter
+      resource: "arn:aws:ssm:{region}:{account}:parameter{resource}"
+    - action: ssm:DescribeParameters
+      resource: "*"
+      note: "ssm:DescribeParameters only supports resource-scoping via tag-based conditions; grant at `*` or attach an aws:ResourceTag condition."
+
 facts:
   exists:
     type: mgtt.bool

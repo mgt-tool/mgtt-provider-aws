@@ -1,5 +1,16 @@
 description: AWS VPC. Facts are observed via `aws ec2 describe-vpcs` and `aws ec2 describe-network-interfaces` for IP utilization.
 
+# IAM grants required to probe this type. mgtt-core doesn't parse this
+# block today; it's operator-facing documentation for scoping a
+# probe-role policy.
+requires:
+  iam:
+    - action: ec2:DescribeVpcs
+      resource: "*"
+      note: "ec2:Describe* actions do not support resource-scoped policies."
+    - action: ec2:DescribeNetworkInterfaces
+      resource: "*"
+
 facts:
   available:
     type: mgtt.bool

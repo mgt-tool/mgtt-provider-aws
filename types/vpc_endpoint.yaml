@@ -1,5 +1,14 @@
 description: AWS VPC interface or gateway endpoint (e.g. PrivateLink for S3, SSM, ECR). Facts are observed via `aws ec2 describe-vpc-endpoints`.
 
+# IAM grants required to probe this type. mgtt-core doesn't parse this
+# block today; it's operator-facing documentation for scoping a
+# probe-role policy.
+requires:
+  iam:
+    - action: ec2:DescribeVpcEndpoints
+      resource: "*"
+      note: "ec2:Describe* actions do not support resource-scoped policies."
+
 facts:
   available:
     type: mgtt.bool

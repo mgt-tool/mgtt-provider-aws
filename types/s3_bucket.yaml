@@ -1,5 +1,20 @@
 description: AWS S3 bucket. Facts are observed via `aws s3api head-bucket`, `aws s3api get-bucket-versioning`, and CloudWatch storage metrics.
 
+# IAM grants required to probe this type. mgtt-core doesn't parse this
+# block today; it's operator-facing documentation for scoping a
+# probe-role policy. `{resource}` is the bucket name — substitute
+# before pasting into a policy.
+requires:
+  iam:
+    - action: s3:ListBucket
+      resource: "arn:aws:s3:::{resource}"
+      note: "s3:ListBucket gates the HEAD /bucket call used for `accessible`."
+    - action: s3:GetBucketVersioning
+      resource: "arn:aws:s3:::{resource}"
+    - action: cloudwatch:GetMetricStatistics
+      resource: "*"
+      note: "Storage-metrics fact (object_count). CloudWatch metric reads do not support resource-scoped policies."
+
 facts:
   accessible:
     type: mgtt.bool

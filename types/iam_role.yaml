@@ -1,5 +1,16 @@
 description: AWS IAM role, including IRSA service-account roles and cross-account assumable roles. Facts are observed via `aws iam get-role` and `aws iam list-attached-role-policies`.
 
+# IAM grants required to probe this type. mgtt-core doesn't parse this
+# block today; it's operator-facing documentation for scoping a
+# probe-role policy. `{account}` / `{resource}` reference the target's
+# coordinates — substitute before pasting into a policy.
+requires:
+  iam:
+    - action: iam:GetRole
+      resource: "arn:aws:iam::{account}:role/{resource}"
+    - action: iam:ListAttachedRolePolicies
+      resource: "arn:aws:iam::{account}:role/{resource}"
+
 facts:
   exists:
     type: mgtt.bool

@@ -1,5 +1,14 @@
 description: AWS Certificate Manager TLS certificate. Facts are observed via `aws acm describe-certificate`.
 
+# IAM grants required to probe this type. mgtt-core doesn't parse this
+# block today; it's operator-facing documentation for scoping a
+# probe-role policy. `{region}` / `{account}` / `{resource}` reference
+# the target's coordinates — substitute before pasting into a policy.
+requires:
+  iam:
+    - action: acm:DescribeCertificate
+      resource: "arn:aws:acm:{region}:{account}:certificate/{resource}"
+
 facts:
   issued:
     type: mgtt.bool

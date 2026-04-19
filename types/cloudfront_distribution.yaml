@@ -1,5 +1,17 @@
 description: AWS CloudFront CDN distribution. Facts are observed via `aws cloudfront get-distribution` and CloudWatch metrics.
 
+# IAM grants required to probe this type. mgtt-core doesn't parse this
+# block today; it's operator-facing documentation for scoping a
+# probe-role policy. `{region}` / `{account}` / `{resource}` reference
+# the target's coordinates — substitute before pasting into a policy.
+requires:
+  iam:
+    - action: cloudfront:GetDistribution
+      resource: "arn:aws:cloudfront::{account}:distribution/{resource}"
+    - action: cloudwatch:GetMetricStatistics
+      resource: "*"
+      note: "CloudWatch metric reads do not support resource-scoped policies."
+
 facts:
   deployed:
     type: mgtt.bool

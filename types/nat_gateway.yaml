@@ -1,5 +1,17 @@
 description: AWS NAT gateway for private-subnet egress. Facts are observed via `aws ec2 describe-nat-gateways` and CloudWatch metrics.
 
+# IAM grants required to probe this type. mgtt-core doesn't parse this
+# block today; it's operator-facing documentation for scoping a
+# probe-role policy.
+requires:
+  iam:
+    - action: ec2:DescribeNatGateways
+      resource: "*"
+      note: "ec2:Describe* actions do not support resource-scoped policies."
+    - action: cloudwatch:GetMetricStatistics
+      resource: "*"
+      note: "CloudWatch metric reads do not support resource-scoped policies."
+
 facts:
   available:
     type: mgtt.bool
