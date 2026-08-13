@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Copyright (C) 2026 Alex Kunich
+# SPDX-License-Identifier: Apache-2.0
 # Seeds fixtures in a LocalStack Community instance for integration tests.
 # Idempotent: existing resources are tolerated (ign helper swallows errors).
 # EC2-returned IDs are written to $FIXTURES_FILE for the Go tests to source.

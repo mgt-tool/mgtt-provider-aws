@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Alex Kunich
+// SPDX-License-Identifier: Apache-2.0
+
 // Package probes wires the aws provider's per-fact probe functions to
 // the SDK's Registry. Individual type implementations live in sibling
 // files (rds_instance.go, etc.); this file is the single Register entry

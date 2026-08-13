@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Alex Kunich
+// SPDX-License-Identifier: Apache-2.0
+
 // Package awsclassify maps aws-cli stderr phrasing to the provider SDK's
 // sentinel errors. This is the one place in the provider that encodes
 // aws-specific vocabulary; every probe consumes the SDK's backend-agnostic
