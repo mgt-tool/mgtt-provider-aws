@@ -35,8 +35,11 @@ healthy:
 
 states:
   live:
-    when: "active == true & api_reachable == true"
+    when: "active == true & api_reachable == true & node_count > 0"
     description: control plane healthy and reachable
+  no_nodes:
+    when: "node_count == 0"
+    description: no worker nodes
   degraded:
     when: "active == true & api_reachable == false"
     description: control plane up but API unreachable
@@ -47,6 +50,8 @@ states:
 default_active_state: live
 
 failure_modes:
+  no_nodes:
+    can_cause: [kubectl_timeout, node_deregistration, workload_outage]
   stopped:
     can_cause: [kubectl_timeout, node_deregistration, workload_outage]
   degraded:

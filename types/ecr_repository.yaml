@@ -34,8 +34,11 @@ healthy:
 
 states:
   present:
-    when: "exists == true"
+    when: "exists == true & image_count > 0"
     description: repository exists
+  empty:
+    when: "image_count == 0"
+    description: repository has no images
   absent:
     when: "exists == false"
     description: repository not found
@@ -43,5 +46,7 @@ states:
 default_active_state: present
 
 failure_modes:
+  empty:
+    can_cause: [image_pull_failure, deployment_failure]
   absent:
     can_cause: [image_pull_failure, deployment_failure]

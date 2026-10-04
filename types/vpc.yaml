@@ -29,8 +29,11 @@ healthy:
 
 states:
   live:
-    when: "available == true"
+    when: "available == true & ip_utilization < 80"
     description: VPC available
+  ip_pressure:
+    when: "ip_utilization >= 80"
+    description: subnets running out of addresses
   unavailable:
     when: "available == false"
     description: VPC unavailable
@@ -38,5 +41,7 @@ states:
 default_active_state: live
 
 failure_modes:
+  ip_pressure:
+    can_cause: [network_unreachable, eni_allocation_failure]
   unavailable:
     can_cause: [network_unreachable, eni_allocation_failure]

@@ -35,8 +35,11 @@ healthy:
 
 states:
   live:
-    when: "available == true"
+    when: "available == true & error_port_allocation_count == 0"
     description: gateway forwarding traffic
+  port_exhaustion:
+    when: "error_port_allocation_count > 0"
+    description: source ports exhausted
   failed:
     when: "available == false"
     description: gateway not available
@@ -44,5 +47,7 @@ states:
 default_active_state: live
 
 failure_modes:
+  port_exhaustion:
+    can_cause: [egress_failure, image_pull_failure, external_api_timeout]
   failed:
     can_cause: [egress_failure, image_pull_failure, external_api_timeout]

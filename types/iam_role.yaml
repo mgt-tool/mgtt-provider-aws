@@ -35,8 +35,11 @@ healthy:
 
 states:
   present:
-    when: "exists == true & assumable == true"
+    when: "exists == true & assumable == true & attached_policy_count > 0"
     description: role exists and trust policy accepts caller
+  no_policies:
+    when: "attached_policy_count == 0"
+    description: role grants nothing
   not_assumable:
     when: "exists == true & assumable == false"
     description: trust policy rejects current principal
@@ -47,6 +50,8 @@ states:
 default_active_state: present
 
 failure_modes:
+  no_policies:
+    can_cause: [auth_failure, access_denied, pod_start_failure]
   absent:
     can_cause: [auth_failure, access_denied, pod_start_failure]
   not_assumable:
