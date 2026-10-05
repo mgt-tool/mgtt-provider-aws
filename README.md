@@ -16,9 +16,9 @@ When `mgtt plan` walks this component, the provider asks AWS: "is the RDS instan
 
 | Type | Facts |
 |------|-------|
-| `rds_instance` | `available` (bool), `connection_count` (int) |
+| `rds_instance` | `available` (bool), `connection_count` (int), `connection_count_max_5m` (int, derived: the peak over 5m) |
 | `elasticache_cluster` | `available` (bool), `connection_count` (int), `cache_hit_ratio` (%) |
-| `mq_broker` | `available` (bool), `queue_depth` (int), `consumer_count` (int) |
+| `mq_broker` | `available` (bool), `queue_depth` (int), `queue_depth_delta_5m` (int, derived: growth over 5m), `consumer_count` (int) |
 | `s3_bucket` | `accessible` (bool), `versioning_enabled` (bool), `object_count` (int) |
 | `eks_cluster` | `active` (bool), `api_reachable` (bool), `node_count` (int) |
 | `ecr_repository` | `exists` (bool), `image_count` (int), `latest_push_age_seconds` (int) |
@@ -32,6 +32,8 @@ When `mgtt plan` walks this component, the provider asks AWS: "is the RDS instan
 | `security_group` | `exists` (bool), `ingress_rule_count` (int), `egress_rule_count` (int) |
 
 Each type's YAML in [`types/`](./types/) declares the state machine, healthy predicate, and failure-mode declarations; `internal/probes/<type>.go` implements the facts by shelling out to `aws-cli`.
+
+Derived facts (`window:` and `derive:` in the YAML) read every CloudWatch datapoint in the window and reduce it with the mgtt SDK's `provider.Windowed`. No default health rule uses them yet; a model opts in, for example `healthy: { add: [queue_depth_delta_5m < 5000] }`. They need an mgtt that passes `--window` and `--derive`.
 
 ## Install
 

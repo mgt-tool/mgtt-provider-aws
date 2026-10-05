@@ -104,3 +104,55 @@ func parseAWSTimestamp(text string) (time.Time, error) {
 	}
 	return time.Time{}, fmt.Errorf("%w: unrecognised aws timestamp %q", provider.ErrProtocol, text)
 }
+
+// readCloudWatchSeries reads every one-minute datapoint of
+// AWS/<namespace>/<metric> for <statistic> since a time, for a derived
+// fact: provider.Windowed reduces them as the fact spec says. No
+// datapoints is no samples, which the SDK reports as unknown, not zero.
+func readCloudWatchSeries(
+	ctx context.Context,
+	cli *shell.Client,
+	namespace, metric, statistic string,
+	since time.Time,
+	dimensions []string,
+) ([]provider.Sample, error) {
+	args := []string{
+		"cloudwatch", "get-metric-statistics",
+		"--namespace", namespace,
+		"--metric-name", metric,
+		"--start-time", since.UTC().Format(time.RFC3339),
+		"--end-time", time.Now().UTC().Format(time.RFC3339),
+		"--period", "60",
+		"--statistics", statistic,
+		"--query", "Datapoints[*].[Timestamp," + statistic + "]",
+		"--output", "text",
+	}
+	if len(dimensions) > 0 {
+		args = append(args, "--dimensions")
+		args = append(args, dimensions...)
+	}
+	out, err := cli.Run(ctx, args...)
+	if err != nil {
+		return nil, err
+	}
+	var samples []provider.Sample
+	for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
+		fields := strings.Fields(line)
+		if len(fields) == 0 || fields[0] == "None" {
+			continue
+		}
+		if len(fields) != 2 {
+			return nil, fmt.Errorf("%w: unexpected aws output line %q", provider.ErrProtocol, line)
+		}
+		at, err := time.Parse(time.RFC3339, fields[0])
+		if err != nil {
+			return nil, fmt.Errorf("%w: datapoint timestamp %q: %v", provider.ErrProtocol, fields[0], err)
+		}
+		v, err := strconv.ParseFloat(fields[1], 64)
+		if err != nil {
+			return nil, fmt.Errorf("%w: datapoint value %q", provider.ErrProtocol, fields[1])
+		}
+		samples = append(samples, provider.Sample{At: at, Value: v})
+	}
+	return samples, nil
+}
