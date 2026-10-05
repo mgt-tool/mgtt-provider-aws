@@ -39,7 +39,7 @@ func TestElasticacheCluster_ConnectionCount_ReadsCloudWatch(t *testing.T) {
 		if !strings.Contains(joined, "Name=CacheClusterId,Value=cache") {
 			t.Errorf("component name must flow into dimensions; got %v", args)
 		}
-		return []byte("17.0\n"), nil, nil
+		return []byte("2026-10-05T12:04:00+00:00\t17.0\n"), nil, nil
 	})
 	r := provider.NewRegistry()
 	registerElasticacheCluster(r, cli)

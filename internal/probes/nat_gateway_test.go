@@ -32,7 +32,7 @@ func TestNATGateway_ErrorPortAllocation_Reads(t *testing.T) {
 		if !strings.Contains(strings.Join(args, " "), "ErrorPortAllocation") {
 			t.Errorf("want ErrorPortAllocation metric; got %v", args)
 		}
-		return []byte("5.0\n"), nil, nil
+		return []byte("2026-10-05T12:04:00+00:00\t5.0\n"), nil, nil
 	})
 	r := provider.NewRegistry()
 	registerNATGateway(r, cli)
@@ -48,7 +48,7 @@ func TestNATGateway_ErrorPortAllocation_Reads(t *testing.T) {
 func TestNATGateway_BytesOut_DividesByPeriod(t *testing.T) {
 	// 600 bytes over 60s should be 10 B/s
 	cli := fakeClient(func(args []string) ([]byte, []byte, error) {
-		return []byte("600.0\n"), nil, nil
+		return []byte("2026-10-05T12:04:00+00:00\t600.0\n"), nil, nil
 	})
 	r := provider.NewRegistry()
 	registerNATGateway(r, cli)

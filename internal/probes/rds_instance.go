@@ -6,7 +6,6 @@ package probes
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
@@ -77,34 +76,7 @@ func describeDBConnectionCount(ctx context.Context, cli *shell.Client, name stri
 	if name == "" {
 		return 0, fmt.Errorf("%w: rds_instance probe requires a component name", provider.ErrUsage)
 	}
-	now := time.Now().UTC()
-	start := now.Add(-metricsWindow)
-	out, err := cli.Run(ctx,
-		"cloudwatch", "get-metric-statistics",
-		"--namespace", "AWS/RDS",
-		"--metric-name", "DatabaseConnections",
-		"--dimensions", "Name=DBInstanceIdentifier,Value="+name,
-		"--start-time", start.Format(time.RFC3339),
-		"--end-time", now.Format(time.RFC3339),
-		"--period", "60",
-		"--statistics", "Maximum",
-		"--query", "Datapoints[0].Maximum",
-		"--output", "text")
-	if err != nil {
-		return 0, err
-	}
-	text := strings.TrimSpace(string(out))
-	// aws-cli returns the literal "None" when the Datapoints array is empty
-	// (e.g. the metric hasn't been emitted in the last 5 minutes). Treat
-	// that as zero connections rather than a parse failure — it's the
-	// correct interpretation for the fact name.
-	if text == "" || text == "None" {
-		return 0, nil
-	}
-	// The output is a float (e.g. "42.0"); convert via strconv + int().
-	f, err := strconv.ParseFloat(text, 64)
-	if err != nil {
-		return 0, fmt.Errorf("%w: unexpected aws output %q", provider.ErrProtocol, text)
-	}
-	return int(f), nil
+	f, err := readCloudWatchStatistic(ctx, cli, "AWS/RDS", "DatabaseConnections", "Maximum",
+		[]string{dim("DBInstanceIdentifier", name)})
+	return int(f), err
 }

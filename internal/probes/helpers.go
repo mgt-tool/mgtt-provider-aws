@@ -34,36 +34,27 @@ func dim(name, value string) string {
 }
 
 // readCloudWatchStatistic returns the most recent datapoint of
-// AWS/<namespace>/<metric> for <statistic>. aws-cli emits "None" when
-// no datapoint is available in the window; we normalize that to 0.
+// AWS/<namespace>/<metric> for <statistic> in the last metricsWindow.
+// CloudWatch returns datapoints in no particular order, so every one is
+// read and the newest kept; reading the first, as this did, could report
+// any minute of the window. No datapoint is 0, as aws-cli's "None" was.
 func readCloudWatchStatistic(
 	ctx context.Context,
 	cli *shell.Client,
 	namespace, metric, statistic string,
 	dimensions []string,
 ) (float64, error) {
-	now := time.Now().UTC()
-	start := now.Add(-metricsWindow)
-	args := []string{
-		"cloudwatch", "get-metric-statistics",
-		"--namespace", namespace,
-		"--metric-name", metric,
-		"--start-time", start.Format(time.RFC3339),
-		"--end-time", now.Format(time.RFC3339),
-		"--period", "60",
-		"--statistics", statistic,
-		"--query", "Datapoints[0]." + statistic,
-		"--output", "text",
-	}
-	if len(dimensions) > 0 {
-		args = append(args, "--dimensions")
-		args = append(args, dimensions...)
-	}
-	out, err := cli.Run(ctx, args...)
-	if err != nil {
+	samples, err := readCloudWatchSeries(ctx, cli, namespace, metric, statistic, time.Now().Add(-metricsWindow), dimensions)
+	if err != nil || len(samples) == 0 {
 		return 0, err
 	}
-	return parseFloatOrZero(strings.TrimSpace(string(out)))
+	latest := samples[0]
+	for _, s := range samples[1:] {
+		if s.At.After(latest.At) {
+			latest = s
+		}
+	}
+	return latest.Value, nil
 }
 
 func parseFloatOrZero(text string) (float64, error) {

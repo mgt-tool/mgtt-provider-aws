@@ -99,7 +99,7 @@ func TestS3Bucket_ObjectCount_TwoDimensions(t *testing.T) {
 		if !strings.Contains(joined, "Name=BucketName,Value=b") || !strings.Contains(joined, "Name=StorageType,Value=AllStorageTypes") {
 			t.Errorf("both dims required; got %v", args)
 		}
-		return []byte("42.0\n"), nil, nil
+		return []byte("2026-10-05T12:04:00+00:00\t42.0\n"), nil, nil
 	})
 	r := provider.NewRegistry()
 	registerS3Bucket(r, cli)
