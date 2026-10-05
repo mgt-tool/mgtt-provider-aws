@@ -36,8 +36,11 @@ healthy:
 
 states:
   live:
-    when: "deployed == true & enabled == true"
+    when: "deployed == true & enabled == true & error_rate_5xx < 1"
     description: distribution serving traffic at edge
+  erroring:
+    when: "error_rate_5xx >= 1"
+    description: serving 5xx errors
   disabled:
     when: "enabled == false"
     description: distribution disabled
@@ -48,6 +51,8 @@ states:
 default_active_state: live
 
 failure_modes:
+  erroring:
+    can_cause: [origin_exposed, cache_miss, latency_spike]
   disabled:
     can_cause: [origin_exposed, cache_miss, latency_spike]
   deploying:

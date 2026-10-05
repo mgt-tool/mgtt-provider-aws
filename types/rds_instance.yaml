@@ -30,8 +30,11 @@ healthy:
 
 states:
   live:
-    when: "available == true"
+    when: "available == true & connection_count < 500"
     description: accepting connections
+  saturated:
+    when: "connection_count >= 500"
+    description: connection pool exhausted
   stopped:
     when: "available == false"
     description: not accepting connections
@@ -39,5 +42,7 @@ states:
 default_active_state: live
 
 failure_modes:
+  saturated:
+    can_cause: [upstream_failure, connection_refused, query_timeout]
   stopped:
     can_cause: [upstream_failure, connection_refused, query_timeout]

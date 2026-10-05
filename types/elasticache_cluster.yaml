@@ -35,8 +35,11 @@ healthy:
 
 states:
   live:
-    when: "available == true"
+    when: "available == true & cache_hit_ratio > 80"
     description: cluster accepting connections
+  cold:
+    when: "cache_hit_ratio <= 80"
+    description: cache hit ratio below 80%
   stopped:
     when: "available == false"
     description: cluster unreachable
@@ -44,5 +47,7 @@ states:
 default_active_state: live
 
 failure_modes:
+  cold:
+    can_cause: [upstream_failure, connection_refused, cache_miss_storm]
   stopped:
     can_cause: [upstream_failure, connection_refused, cache_miss_storm]

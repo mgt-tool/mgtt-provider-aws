@@ -36,8 +36,14 @@ healthy:
 
 states:
   live:
-    when: "available == true"
+    when: "available == true & queue_depth < 10000 & consumer_count > 0"
     description: broker accepting publishers and consumers
+  backlogged:
+    when: "queue_depth >= 10000"
+    description: queue backed up
+  no_consumers:
+    when: "consumer_count == 0"
+    description: nothing consuming the queue
   stopped:
     when: "available == false"
     description: broker unreachable
@@ -45,5 +51,9 @@ states:
 default_active_state: live
 
 failure_modes:
+  backlogged:
+    can_cause: [publish_failure, consumer_disconnect, message_backlog]
+  no_consumers:
+    can_cause: [publish_failure, consumer_disconnect, message_backlog]
   stopped:
     can_cause: [publish_failure, consumer_disconnect, message_backlog]
