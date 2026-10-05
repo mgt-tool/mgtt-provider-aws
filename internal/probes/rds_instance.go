@@ -40,6 +40,14 @@ func registerRDSInstance(r *provider.Registry, cli *shell.Client) {
 			}, nil
 		},
 
+		// The peak over the fact's window: a spike to the limit between two
+		// one-minute snapshots still counts.
+		"connection_count_max_5m": provider.Windowed(func(ctx context.Context, req provider.Request, since time.Time) ([]provider.Sample, error) {
+			if err := requireName("rds_instance", req.Name); err != nil {
+				return nil, err
+			}
+			return readCloudWatchSeries(ctx, cli, "AWS/RDS", "DatabaseConnections", "Maximum", since, []string{dim("DBInstanceIdentifier", req.Name)})
+		}),
 		"connection_count": func(ctx context.Context, req provider.Request) (provider.Result, error) {
 			count, err := describeDBConnectionCount(ctx, cli, req.Name)
 			if err != nil {

@@ -4,6 +4,7 @@
 
 ### Added
 
+- **Derived facts, piloting mgtt's `window:` / `derive:`:** `mq_broker.queue_depth_delta_5m` (how much the queue grew over 5 minutes: a deep queue that drains is not a backlog, a shallow one climbing fast is) and `rds_instance.connection_count_max_5m` (the peak over 5 minutes, so a spike between two one-minute snapshots still counts). Both read every CloudWatch datapoint in the window; no datapoints is unknown, not zero. No default health rule uses them; models opt in with `healthy: { add: [...] }`. Requires the mgtt SDK with `provider.Windowed`.
 - **Per-type `requires.iam:` block** in every `types/*.yaml` file listing exactly which AWS API actions that type's probes touch, along with the resource-ARN pattern the action supports (or `*` with a `note:` where AWS doesn't support resource-scoping). Operators can now scope a probe-role policy per type instead of granting the union-of-all-types. mgtt-core doesn't parse the block yet — it's documentation today; a follow-up will render it automatically via `mgtt provider inspect`.
 
 ## [1.0.0] — 2026-04-18

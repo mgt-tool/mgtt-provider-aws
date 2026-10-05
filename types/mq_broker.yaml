@@ -23,6 +23,13 @@ facts:
     ttl: 60s
     cost: low
     access: AWS API read-only
+  queue_depth_delta_5m:              # growth, not depth: for healthy: add: rules
+    type: mgtt.int
+    window: 5m
+    derive: delta
+    ttl: 60s
+    cost: low
+    access: AWS API read-only
   consumer_count:
     type: mgtt.int
     ttl: 60s

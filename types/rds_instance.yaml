@@ -23,6 +23,13 @@ facts:
     ttl: 60s
     cost: low
     access: AWS API read-only
+  connection_count_max_5m:           # the peak, spikes included: for healthy: add: rules
+    type: mgtt.int
+    window: 5m
+    derive: max
+    ttl: 60s
+    cost: low
+    access: AWS API read-only
 
 healthy:
   - available == true
