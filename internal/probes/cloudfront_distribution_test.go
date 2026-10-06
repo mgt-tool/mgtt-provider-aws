@@ -54,7 +54,7 @@ func TestCloudFrontDistribution_ErrorRate5xx_Reads(t *testing.T) {
 		if !strings.Contains(joined, "Name=DistributionId,Value=E123") || !strings.Contains(joined, "Name=Region,Value=Global") {
 			t.Errorf("both dims required; got %v", args)
 		}
-		return []byte("0.42\n"), nil, nil
+		return []byte("2026-10-05T12:04:00+00:00\t0.42\n"), nil, nil
 	})
 	r := provider.NewRegistry()
 	registerCloudFrontDistribution(r, cli)

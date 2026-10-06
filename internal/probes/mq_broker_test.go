@@ -36,7 +36,7 @@ func TestMQBroker_QueueDepth_ReadsMessageCount(t *testing.T) {
 		if !strings.Contains(joined, "MessageCount") {
 			t.Errorf("want MessageCount; got %v", args)
 		}
-		return []byte("250.0\n"), nil, nil
+		return []byte("2026-10-05T12:04:00+00:00\t250.0\n"), nil, nil
 	})
 	r := provider.NewRegistry()
 	registerMQBroker(r, cli)

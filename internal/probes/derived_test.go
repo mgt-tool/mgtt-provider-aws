@@ -55,3 +55,25 @@ func TestMQBroker_QueueDepthDelta_NoDatapoints(t *testing.T) {
 		t.Errorf("want transient; got %v", err)
 	}
 }
+
+// CloudWatch returns datapoints in no particular order: a level fact reads
+// the newest, not whichever comes first.
+func TestMQBroker_QueueDepth_ReadsTheNewestDatapoint(t *testing.T) {
+	r := provider.NewRegistry()
+	registerMQBroker(r, fakeClient(func([]string) ([]byte, []byte, error) { return []byte(messageCounts), nil, nil }))
+	res, err := r.Probe(context.Background(), provider.Request{Type: "mq_broker", Name: "b-123", Fact: "queue_depth"})
+	if err != nil || res.Value != 4200 {
+		t.Fatalf("got %+v, %v; want 4200, the 12:04 datapoint, not the first one listed (3900)", res, err)
+	}
+}
+
+func TestRDSInstance_ConnectionCount_ReadsTheNewestDatapoint(t *testing.T) {
+	r := provider.NewRegistry()
+	registerRDSInstance(r, fakeClient(func([]string) ([]byte, []byte, error) {
+		return []byte("2026-10-05T12:04:00+00:00\t480.0\n2026-10-05T12:00:00+00:00\t310.0\n"), nil, nil
+	}))
+	res, err := r.Probe(context.Background(), provider.Request{Type: "rds_instance", Name: "db", Fact: "connection_count"})
+	if err != nil || res.Value != 480 {
+		t.Fatalf("got %+v, %v; want 480", res, err)
+	}
+}

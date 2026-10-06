@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **CloudWatch-backed facts read the newest datapoint.** They queried `Datapoints[0]`, and CloudWatch returns datapoints in no particular order, so `queue_depth`, `consumer_count`, `connection_count` (RDS and ElastiCache), `cache_hit_ratio`, `error_rate_5xx`, `object_count` and the NAT gateway counters could report any minute of their 5-minute window. They now read every datapoint and keep the newest. No datapoint still reads 0.
+
 ### Added
 
 - **Derived facts, piloting mgtt's `window:` / `derive:`:** `mq_broker.queue_depth_delta_5m` (how much the queue grew over 5 minutes: a deep queue that drains is not a backlog, a shallow one climbing fast is) and `rds_instance.connection_count_max_5m` (the peak over 5 minutes, so a spike between two one-minute snapshots still counts). Both read every CloudWatch datapoint in the window; no datapoints is unknown, not zero. No default health rule uses them; models opt in with `healthy: { add: [...] }`. Requires the mgtt SDK with `provider.Windowed`.

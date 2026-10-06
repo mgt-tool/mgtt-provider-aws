@@ -108,7 +108,7 @@ func TestRDSInstance_ConnectionCount_ReadsDatapoint(t *testing.T) {
 		if !contains(joined, "Name=DBInstanceIdentifier,Value=prod-db") {
 			t.Errorf("component name must flow into --dimensions; got %v", args)
 		}
-		return []byte("42.0\n"), nil, nil
+		return []byte("2026-10-05T12:04:00+00:00\t42.0\n"), nil, nil
 	})
 	r := provider.NewRegistry()
 	registerRDSInstance(r, cli)
